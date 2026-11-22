@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>s2html.c</title>
+<style>
+body{margin:0;padding:40px 0;background:#0f1534;color:#d4d4d4;font-family:'Segoe UI',Arial,sans-serif;}
+.page{max-width:1280px;margin:0 auto;padding:0 20px;}
+h1 { background-clip: text;font-size: 70px; color: #59f7c2; text-shadow: 0 5px 5px #4b81ff, 0 0 20px #7aa2ff, 0 0 40px #7aa2ff;text-align: center; }
+.sub{  margin:0 0 30px;color:#9da5b4;font-size:35px;text-align: center;font-weight: 500;}
+.card{background:#1f1f1f;border:1px solid #7489b6;border-radius:14px;padding:30px 25px;overflow-x:auto;}
+.code{font-family:Consolas,'Courier New',monospace;font-size:14px;}
+.l{white-space:pre;line-height:1.6;min-height:1.6em;}
+.n{display:inline-block;width:4ch;margin-right:2ch;text-align:right;color:#5c6678;user-select:none;}
+.n{display:inline-block;width:4ch;margin-right:2ch;text-align:right;color:#5c6678;user-select:none;}
+.preprocessor{color: #7c3aed;}
+.string{color: #e972f4; }
+.comment{color: #5647fc;font-style:italic;}
+.num{color : #f97407;}
+.bracket{color: #ebad66;}
+.storagekeyword{color:#d8a0f0;font-weight:bold;}
+.typekeyword{color : #6efffd;font-weight:bold;}
+.controlkw{color : #ff76f6;font-weight:bold;}
+.constantkw{color:#60a5fa;}
+.function{color:#f9ff90;}
+.operator{color:#94a3b8;}
+.footer { color: #b8b8b8; clear: both; margin-top: 40px;text-align:center;font-size: 18px; }
+.footer { clear: both; margin-top: 40px;text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Source to HTML</h1>
+<p class="sub">C - Project</p>
+<div class="card">
+<div class="code">
+<div class="l"><span class="n">1</span><span class="preprocessor">#include</span>  <span class="string">&quot;s2html.h&quot;</span></div>
+<div class="l"><span class="n">2</span></div>
+<div class="l"><span class="n">3</span><span class="comment">//control keywords</span></div>
+<div class="l"><span class="n">4</span><span class="storagekeyword">static</span>  <span class="typekeyword">char</span> <span class="operator">*</span>control_kw<span class="bracket">[</span><span class="bracket">]</span> <span class="operator">=</span> <span class="bracket">{</span>  <span class="string">&quot;if&quot;</span>, <span class="string">&quot;else&quot;</span>, <span class="string">&quot;for&quot;</span>, <span class="string">&quot;while&quot;</span>, <span class="string">&quot;do&quot;</span>, <span class="string">&quot;switch&quot;</span>, <span class="string">&quot;case&quot;</span>, <span class="string">&quot;default&quot;</span>,</div>
+<div class="l"><span class="n">5</span>                                <span class="string">&quot;break&quot;</span>, <span class="string">&quot;continue&quot;</span>, <span class="string">&quot;return&quot;</span>, <span class="string">&quot;goto&quot;</span>, <span class="constantke">NULL</span></div>
+<div class="l"><span class="n">6</span>                              <span class="bracket">}</span>;</div>
+<div class="l"><span class="n">7</span></div>
+<div class="l"><span class="n">8</span><span class="comment">// Storage class, type qualifiers, and related keywords</span></div>
+<div class="l"><span class="n">9</span><span class="storagekeyword">static</span>  <span class="typekeyword">char</span> <span class="operator">*</span>storage_kw<span class="bracket">[</span><span class="bracket">]</span> <span class="operator">=</span> <span class="bracket">{</span><span class="string">&quot;auto&quot;</span>, <span class="string">&quot;const&quot;</span>, <span class="string">&quot;enum&quot;</span>, <span class="string">&quot;extern&quot;</span>, <span class="string">&quot;inline&quot;</span>, <span class="string">&quot;register&quot;</span>, <span class="string">&quot;restrict&quot;</span>, </div>
+<div class="l"><span class="n">10</span>                              <span class="string">&quot;sizeof&quot;</span>, <span class="string">&quot;static&quot;</span>, <span class="string">&quot;struct&quot;</span>, <span class="string">&quot;typedef&quot;</span>, <span class="string">&quot;union&quot;</span>, <span class="string">&quot;volatile&quot;</span>, <span class="constantke">NULL</span></div>
+<div class="l"><span class="n">11</span>                            <span class="bracket">}</span>;</div>
+<div class="l"><span class="n">12</span></div>
+<div class="l"><span class="n">13</span><span class="comment">//in build  data types</span></div>
+<div class="l"><span class="n">14</span><span class="storagekeyword">static</span>  <span class="typekeyword">char</span> <span class="operator">*</span>type_kw<span class="bracket">[</span><span class="bracket">]</span> <span class="operator">=</span> <span class="bracket">{</span><span class="string">&quot;void&quot;</span>, <span class="string">&quot;char&quot;</span>, <span class="string">&quot;short&quot;</span>, <span class="string">&quot;int&quot;</span>, <span class="string">&quot;long&quot;</span>, <span class="string">&quot;float&quot;</span>, <span class="string">&quot;double&quot;</span>, <span class="string">&quot;signed&quot;</span>,</div>
+<div class="l"><span class="n">15</span>                            <span class="string">&quot;unsigned&quot;</span>, <span class="string">&quot;_Bool&quot;</span>, <span class="string">&quot;size_t&quot;</span>, <span class="string">&quot;FILE&quot;</span>, <span class="string">&quot;uint8_t&quot;</span>, <span class="string">&quot;uint16_t&quot;</span>,</div>
+<div class="l"><span class="n">16</span>                            <span class="string">&quot;uint32_t&quot;</span>, <span class="string">&quot;uint64_t&quot;</span>, <span class="string">&quot;int8_t&quot;</span>, <span class="string">&quot;int16_t&quot;</span>, <span class="string">&quot;int32_t&quot;</span>, <span class="string">&quot;int64_t&quot;</span>, <span class="constantke">NULL</span></div>
+<div class="l"><span class="n">17</span>                          <span class="bracket">}</span>;</div>
+<div class="l"><span class="n">18</span></div>
+<div class="l"><span class="n">19</span><span class="comment">// Predefined constants and literals</span></div>
+<div class="l"><span class="n">20</span><span class="storagekeyword">static</span>  <span class="typekeyword">char</span> <span class="operator">*</span>const_kw<span class="bracket">[</span><span class="bracket">]</span> <span class="operator">=</span> <span class="bracket">{</span> <span class="string">&quot;NULL&quot;</span>, <span class="string">&quot;EOF&quot;</span>, <span class="string">&quot;true&quot;</span>, <span class="string">&quot;false&quot;</span>, <span class="constantke">NULL</span> <span class="bracket">}</span>;</div>
+<div class="l"><span class="n">21</span></div>
+<div class="l"><span class="n">22</span><span class="storagekeyword">static</span> <span class="typekeyword">int</span> <span class="function">is_list</span><span class="bracket">(</span><span class="typekeyword">char</span> <span class="operator">*</span>data,<span class="typekeyword">size_t</span> len,<span class="typekeyword">char</span> <span class="operator">*</span><span class="operator">*</span>list<span class="bracket">)</span></div>
+<div class="l"><span class="n">23</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">24</span>  </div>
+<div class="l"><span class="n">25</span>  <span class="controlkw">for</span><span class="bracket">(</span><span class="typekeyword">int</span> i <span class="operator">=</span> <span class="num">0</span> ; list<span class="bracket">[</span>i<span class="bracket">]</span> <span class="operator">!</span><span class="operator">=</span> <span class="constantke">NULL</span>;i<span class="operator">+</span><span class="operator">+</span><span class="bracket">)</span></div>
+<div class="l"><span class="n">26</span>  <span class="bracket">{</span></div>
+<div class="l"><span class="n">27</span>    </div>
+<div class="l"><span class="n">28</span>    <span class="controlkw">if</span><span class="bracket">(</span><span class="function">strlen</span><span class="bracket">(</span>list<span class="bracket">[</span>i<span class="bracket">]</span><span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="function">strncmp</span><span class="bracket">(</span>list<span class="bracket">[</span>i<span class="bracket">]</span>,data,len<span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span><span class="num">0</span><span class="bracket">)</span></div>
+<div class="l"><span class="n">29</span>    <span class="bracket">{</span></div>
+<div class="l"><span class="n">30</span>      <span class="controlkw">return</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">31</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">32</span>  <span class="bracket">}</span></div>
+<div class="l"><span class="n">33</span>  <span class="controlkw">return</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">34</span><span class="bracket">}</span></div>
+<div class="l"><span class="n">35</span></div>
+<div class="l"><span class="n">36</span></div>
+<div class="l"><span class="n">37</span><span class="typekeyword">int</span> <span class="function">source_to_html</span><span class="bracket">(</span><span class="typekeyword">FILE</span> <span class="operator">*</span>dest, <span class="typekeyword">char</span> <span class="operator">*</span>data, <span class="typekeyword">size_t</span> len<span class="bracket">)</span></div>
+<div class="l"><span class="n">38</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">39</span>  <span class="typekeyword">size_t</span> i <span class="operator">=</span> <span class="num">0</span>,j;</div>
+<div class="l"><span class="n">40</span>  <span class="typekeyword">unsigned</span> <span class="typekeyword">int</span> line_start <span class="operator">=</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">41</span>  </div>
+<div class="l"><span class="n">42</span>  <span class="function">start_line</span><span class="bracket">(</span>dest<span class="bracket">)</span>;</div>
+<div class="l"><span class="n">43</span>  </div>
+<div class="l"><span class="n">44</span>  <span class="typekeyword">unsigned</span> <span class="typekeyword">char</span> ch ;</div>
+<div class="l"><span class="n">45</span>  </div>
+<div class="l"><span class="n">46</span>  <span class="controlkw">while</span> <span class="bracket">(</span>i <span class="operator">&lt;</span> len<span class="bracket">)</span></div>
+<div class="l"><span class="n">47</span>  <span class="bracket">{</span></div>
+<div class="l"><span class="n">48</span>    ch <span class="operator">=</span> <span class="bracket">(</span><span class="typekeyword">unsigned</span><span class="bracket">)</span>data<span class="bracket">[</span>i<span class="bracket">]</span>;</div>
+<div class="l"><span class="n">49</span>    </div>
+<div class="l"><span class="n">50</span>    <span class="comment">//=============preprocessor============</span></div>
+<div class="l"><span class="n">51</span>    <span class="controlkw">if</span><span class="bracket">(</span>ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;#&apos; </span><span class="operator">&amp;</span><span class="operator">&amp;</span> line_start<span class="bracket">)</span></div>
+<div class="l"><span class="n">52</span>    <span class="bracket">{</span></div>
+<div class="l"><span class="n">53</span>      j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">54</span>      </div>
+<div class="l"><span class="n">55</span>      <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos; &apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;\t&apos;)</span>j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">56</span>      </div>
+<div class="l"><span class="n">57</span>      <span class="typekeyword">size_t</span> nmstart <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">58</span>      </div>
+<div class="l"><span class="n">59</span>      <span class="controlkw">while</span><span class="bracket">(</span> j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="function">isalpha</span><span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span><span class="bracket">)</span> <span class="bracket">)</span>j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">60</span>      </div>
+<div class="l"><span class="n">61</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j,<span class="string">&quot;preprocessor&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">62</span>      </div>
+<div class="l"><span class="n">63</span>      <span class="typekeyword">int</span> isinc <span class="operator">=</span> <span class="bracket">(</span>j <span class="operator">-</span> nmstart <span class="operator">=</span><span class="operator">=</span> <span class="num">7</span> <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="function">strncmp</span><span class="bracket">(</span>data <span class="operator">+</span> nmstart,<span class="string">&quot;include&quot;</span>,<span class="num">7</span><span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span> <span class="num">0</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">64</span>      </div>
+<div class="l"><span class="n">65</span>      line_start <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">66</span>      </div>
+<div class="l"><span class="n">67</span>      i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">68</span>      </div>
+<div class="l"><span class="n">69</span>      <span class="controlkw">if</span><span class="bracket">(</span>isinc<span class="bracket">)</span></div>
+<div class="l"><span class="n">70</span>      <span class="bracket">{</span></div>
+<div class="l"><span class="n">71</span>        <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="function">isspace</span><span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span><span class="bracket">)</span><span class="bracket">)</span>j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">72</span>        </div>
+<div class="l"><span class="n">73</span>        <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j,<span class="constantke">NULL</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">74</span>        <span class="controlkw">if</span><span class="bracket">(</span>data<span class="bracket">[</span>i<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;&lt;&apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>i<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;&quot;&apos;)</span></div>
+<div class="l"><span class="n">75</span>        <span class="bracket">{</span></div>
+<div class="l"><span class="n">76</span>          <span class="typekeyword">char</span> close <span class="operator">=</span> <span class="bracket">(</span>data<span class="bracket">[</span>i<span class="bracket">]</span><span class="operator">=</span><span class="operator">=</span><span class="string">&apos;&lt;&apos;)</span> <span class="operator">?</span> <span class="string">&apos;&gt;&apos; </span><span class="operator">:</span> <span class="string">&apos;&quot;&apos;;</span></div>
+<div class="l"><span class="n">77</span>          j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">78</span>          </div>
+<div class="l"><span class="n">79</span>          <span class="controlkw">while</span><span class="bracket">(</span> j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">!</span><span class="operator">=</span> close <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">!</span><span class="operator">=</span> <span class="string">&apos;\n&apos; </span><span class="bracket">)</span><span class="bracket">)</span> j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">80</span>          <span class="controlkw">if</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> close<span class="bracket">)</span> j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">81</span>          <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j,<span class="string">&quot;string&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">82</span>          i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">83</span>        <span class="bracket">}</span></div>
+<div class="l"><span class="n">84</span>      <span class="bracket">}</span></div>
+<div class="l"><span class="n">85</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">86</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">87</span>    </div>
+<div class="l"><span class="n">88</span>    <span class="comment">//=========== singleline comment ===============</span></div>
+<div class="l"><span class="n">89</span>    <span class="controlkw">if</span><span class="bracket">(</span>ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;/&apos; </span><span class="operator">&amp;</span><span class="operator">&amp;</span> i <span class="operator">+</span><span class="num">1</span> <span class="operator">&lt;</span>len <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>i<span class="operator">+</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;/&apos;)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">90</span>      j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">2</span>;</div>
+<div class="l"><span class="n">91</span>      </div>
+<div class="l"><span class="n">92</span>      <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">!</span><span class="operator">=</span> <span class="string">&apos;\n&apos;)</span> j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">93</span>      </div>
+<div class="l"><span class="n">94</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i ,j,<span class="string">&quot;comment&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">95</span>      </div>
+<div class="l"><span class="n">96</span>      i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">97</span>      line_start <span class="operator">=</span><span class="num">0</span>;</div>
+<div class="l"><span class="n">98</span>      </div>
+<div class="l"><span class="n">99</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">100</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">101</span>    </div>
+<div class="l"><span class="n">102</span>    <span class="comment">//===========multiline comment======================</span></div>
+<div class="l"><span class="n">103</span>    <span class="controlkw">if</span><span class="bracket">(</span>ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;/&apos; </span><span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>i<span class="operator">+</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;*&apos;)</span></div>
+<div class="l"><span class="n">104</span>    <span class="bracket">{</span></div>
+<div class="l"><span class="n">105</span>      j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">2</span>;</div>
+<div class="l"><span class="n">106</span>      </div>
+<div class="l"><span class="n">107</span>      <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="operator">!</span><span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;*&apos; </span><span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>j<span class="operator">+</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span><span class="string">&apos;/&apos; </span><span class="bracket">)</span><span class="bracket">)</span>j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">108</span>      </div>
+<div class="l"><span class="n">109</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j<span class="operator">+</span><span class="operator">=</span><span class="num">2</span>,<span class="string">&quot;comment&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">110</span>      </div>
+<div class="l"><span class="n">111</span>      i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">112</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">113</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">114</span>    </div>
+<div class="l"><span class="n">115</span>    <span class="comment">//================new line =======================</span></div>
+<div class="l"><span class="n">116</span>    <span class="controlkw">if</span><span class="bracket">(</span>ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;\n&apos;)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">117</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,i<span class="operator">+</span><span class="num">1</span>,<span class="constantke">NULL</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">118</span>      i<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">119</span>      line_start <span class="operator">=</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">120</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">121</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">122</span>    </div>
+<div class="l"><span class="n">123</span>    <span class="comment">//============space==========================</span></div>
+<div class="l"><span class="n">124</span>    <span class="controlkw">if</span><span class="bracket">(</span><span class="function">isspace</span><span class="bracket">(</span>ch<span class="bracket">)</span><span class="bracket">)</span></div>
+<div class="l"><span class="n">125</span>    <span class="bracket">{</span></div>
+<div class="l"><span class="n">126</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,i<span class="operator">+</span><span class="num">1</span>,<span class="constantke">NULL</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">127</span>      i<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">128</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">129</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">130</span>    </div>
+<div class="l"><span class="n">131</span>    <span class="comment">//===============numbers============================</span></div>
+<div class="l"><span class="n">132</span>    <span class="controlkw">if</span><span class="bracket">(</span><span class="function">isdigit</span><span class="bracket">(</span>ch<span class="bracket">)</span> <span class="bracket">)</span></div>
+<div class="l"><span class="n">133</span>    <span class="bracket">{</span></div>
+<div class="l"><span class="n">134</span>      j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">135</span>      </div>
+<div class="l"><span class="n">136</span>      <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="bracket">(</span><span class="function">isalnum</span><span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span><span class="bracket">)</span> <span class="bracket">)</span> <span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span><span class="string">&apos;.&apos; </span><span class="operator">|</span><span class="operator">|</span> <span class="bracket">(</span> <span class="bracket">(</span>data<span class="bracket">[</span>j<span class="operator">-</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;e&apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="operator">-</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;E&apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="operator">-</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;p&apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="operator">-</span><span class="num">1</span><span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;P&apos;)</span><span class="bracket">)</span><span class="bracket">)</span> j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">137</span>      </div>
+<div class="l"><span class="n">138</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j,<span class="string">&quot;num&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">139</span>      </div>
+<div class="l"><span class="n">140</span>      i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">141</span>      line_start <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">142</span>      <span class="controlkw">continue</span>; </div>
+<div class="l"><span class="n">143</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">144</span>    </div>
+<div class="l"><span class="n">145</span>    <span class="comment">//============brackets===============</span></div>
+<div class="l"><span class="n">146</span>    <span class="controlkw">if</span><span class="bracket">(</span><span class="function">strchr</span><span class="bracket">(</span><span class="string">&quot;[]{}()&quot;</span>,ch<span class="bracket">)</span> <span class="operator">!</span><span class="operator">=</span> <span class="constantke">NULL</span><span class="bracket">)</span></div>
+<div class="l"><span class="n">147</span>    <span class="bracket">{</span> </div>
+<div class="l"><span class="n">148</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,i<span class="operator">+</span><span class="num">1</span>,<span class="string">&quot;bracket&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">149</span>      i<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">150</span>      line_start <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">151</span>      <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">152</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">153</span></div>
+<div class="l"><span class="n">154</span>      <span class="comment">//=========string literal character literal ============</span></div>
+<div class="l"><span class="n">155</span>      <span class="controlkw">if</span><span class="bracket">(</span>ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;&quot;&apos; </span><span class="operator">|</span><span class="operator">|</span> ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;\&apos;&apos;</span><span class="bracket">)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">156</span>        j <span class="operator">=</span> i <span class="operator">+</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">157</span>        </div>
+<div class="l"><span class="n">158</span>        <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">!</span><span class="operator">=</span> ch <span class="bracket">)</span><span class="bracket">)</span> j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">159</span>        </div>
+<div class="l"><span class="n">160</span>        <span class="controlkw">if</span><span class="bracket">(</span>  data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;\&apos;&apos;</span><span class="bracket">)</span>j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">161</span>        </div>
+<div class="l"><span class="n">162</span>        <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,j<span class="operator">+</span><span class="num">1</span>,<span class="string">&quot;string&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">163</span>        i <span class="operator">=</span> j <span class="operator">+</span> <span class="num">1</span>;</div>
+<div class="l"><span class="n">164</span>        <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">165</span>      <span class="bracket">}</span></div>
+<div class="l"><span class="n">166</span>      </div>
+<div class="l"><span class="n">167</span>      <span class="comment">//===========functions / keywords / identifier ============</span></div>
+<div class="l"><span class="n">168</span>      <span class="controlkw">if</span><span class="bracket">(</span><span class="function">isalpha</span><span class="bracket">(</span>ch<span class="bracket">)</span> <span class="operator">|</span><span class="operator">|</span> ch <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;_&apos;)</span></div>
+<div class="l"><span class="n">169</span>      <span class="bracket">{</span></div>
+<div class="l"><span class="n">170</span>        j <span class="operator">=</span> i;</div>
+<div class="l"><span class="n">171</span>        <span class="typekeyword">size_t</span> len_s <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">172</span>        </div>
+<div class="l"><span class="n">173</span>        <span class="controlkw">while</span><span class="bracket">(</span>j <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="bracket">(</span><span class="function">isalnum</span><span class="bracket">(</span>data<span class="bracket">[</span>j<span class="bracket">]</span><span class="bracket">)</span><span class="bracket">)</span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>j<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;_&apos; </span><span class="bracket">)</span></div>
+<div class="l"><span class="n">174</span>        <span class="bracket">{</span></div>
+<div class="l"><span class="n">175</span>          len_s<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">176</span>          j<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">177</span>        <span class="bracket">}</span></div>
+<div class="l"><span class="n">178</span>        </div>
+<div class="l"><span class="n">179</span>        <span class="typekeyword">char</span> <span class="operator">*</span> cls <span class="operator">=</span> <span class="constantke">NULL</span>;</div>
+<div class="l"><span class="n">180</span>        </div>
+<div class="l"><span class="n">181</span>        <span class="controlkw">if</span><span class="bracket">(</span><span class="function">is_list</span><span class="bracket">(</span>data <span class="operator">+</span> i,len_s,control_kw<span class="bracket">)</span> <span class="bracket">)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">182</span>          cls <span class="operator">=</span> <span class="string">&quot;controlkw&quot;</span>;</div>
+<div class="l"><span class="n">183</span>        <span class="bracket">}</span><span class="controlkw">else</span> <span class="controlkw">if</span><span class="bracket">(</span><span class="function">is_list</span><span class="bracket">(</span>data <span class="operator">+</span> i,len_s,storage_kw<span class="bracket">)</span><span class="bracket">)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">184</span>          cls <span class="operator">=</span><span class="string">&quot;storagekeyword&quot;</span>;</div>
+<div class="l"><span class="n">185</span>        <span class="bracket">}</span><span class="controlkw">else</span> <span class="controlkw">if</span><span class="bracket">(</span><span class="function">is_list</span><span class="bracket">(</span>data <span class="operator">+</span> i,len_s,type_kw<span class="bracket">)</span><span class="bracket">)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">186</span>          cls <span class="operator">=</span> <span class="string">&quot;typekeyword&quot;</span>;</div>
+<div class="l"><span class="n">187</span>        <span class="bracket">}</span><span class="controlkw">else</span> <span class="controlkw">if</span><span class="bracket">(</span><span class="function">is_list</span><span class="bracket">(</span>data <span class="operator">+</span> i,len_s,const_kw<span class="bracket">)</span><span class="bracket">)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">188</span>          cls <span class="operator">=</span> <span class="string">&quot;constantke&quot;</span>;</div>
+<div class="l"><span class="n">189</span>        <span class="bracket">}</span><span class="controlkw">else</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">190</span>          <span class="typekeyword">size_t</span> k <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">191</span>          </div>
+<div class="l"><span class="n">192</span>          <span class="controlkw">while</span><span class="bracket">(</span>k <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> <span class="bracket">(</span><span class="bracket">(</span>data<span class="bracket">[</span>k<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos; &apos; </span><span class="operator">|</span><span class="operator">|</span> data<span class="bracket">[</span>k<span class="bracket">]</span> <span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;\t&apos;)</span><span class="bracket">)</span><span class="bracket">)</span>k<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">193</span>          </div>
+<div class="l"><span class="n">194</span>          <span class="controlkw">if</span><span class="bracket">(</span>k <span class="operator">&lt;</span> len <span class="operator">&amp;</span><span class="operator">&amp;</span> data<span class="bracket">[</span>k<span class="bracket">]</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&apos;(&apos;)</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">195</span>            cls <span class="operator">=</span> <span class="string">&quot;function&quot;</span>;</div>
+<div class="l"><span class="n">196</span>          <span class="bracket">}</span></div>
+<div class="l"><span class="n">197</span>        <span class="bracket">}</span></div>
+<div class="l"><span class="n">198</span>        </div>
+<div class="l"><span class="n">199</span>        <span class="function">insert_data</span><span class="bracket">(</span>dest,<span class="operator">&amp;</span>data<span class="bracket">[</span>i<span class="bracket">]</span>,<span class="num">0</span>,len_s,cls<span class="bracket">)</span>;</div>
+<div class="l"><span class="n">200</span>        i <span class="operator">=</span> j;</div>
+<div class="l"><span class="n">201</span>        <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">202</span>      <span class="bracket">}</span></div>
+<div class="l"><span class="n">203</span>      </div>
+<div class="l"><span class="n">204</span>      <span class="comment">//================operators=================</span></div>
+<div class="l"><span class="n">205</span>      <span class="controlkw">if</span> <span class="bracket">(</span><span class="function">strchr</span><span class="bracket">(</span><span class="string">&quot;+-*=&lt;&gt;%!|&amp;^~?:&quot;</span>, ch<span class="bracket">)</span> <span class="operator">!</span><span class="operator">=</span> <span class="constantke">NULL</span><span class="bracket">)</span></div>
+<div class="l"><span class="n">206</span>      <span class="bracket">{</span></div>
+<div class="l"><span class="n">207</span>        <span class="function">insert_data</span><span class="bracket">(</span>dest, data, i, i <span class="operator">+</span> <span class="num">1</span>, <span class="string">&quot;operator&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">208</span>        i<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">209</span>        line_start <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">210</span>        <span class="controlkw">continue</span>;</div>
+<div class="l"><span class="n">211</span>      <span class="bracket">}</span></div>
+<div class="l"><span class="n">212</span></div>
+<div class="l"><span class="n">213</span></div>
+<div class="l"><span class="n">214</span>      <span class="function">insert_data</span><span class="bracket">(</span>dest,data,i,i <span class="operator">+</span> <span class="num">1</span>,<span class="constantke">NULL</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">215</span>      line_start <span class="operator">=</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">216</span>      i<span class="operator">+</span><span class="operator">+</span>;</div>
+<div class="l"><span class="n">217</span>    <span class="bracket">}</span></div>
+<div class="l"><span class="n">218</span>    <span class="function">end_line</span><span class="bracket">(</span>dest<span class="bracket">)</span>;</div>
+<div class="l"><span class="n">219</span>    <span class="controlkw">return</span> SUCCESS;</div>
+<div class="l"><span class="n">220</span>  <span class="bracket">}</span></div>
+</div>
+</div>
+</body>
+</html>
+</div>
+<footer class="footer">&copy; 2026 Source to HTML | C - Project | Made by Gowtham K R</footer>
+</body>
+</html>
