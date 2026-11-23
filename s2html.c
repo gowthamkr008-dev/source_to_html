@@ -2,35 +2,38 @@
 
 //control keywords
 static  char *control_kw[] = {  "if", "else", "for", "while", "do", "switch", "case", "default",
-                                "break", "continue", "return", "goto", NULL
+                                "break", "continue", "return", "goto",NULL
                               };
 
 // Storage class, type qualifiers, and related keywords
 static  char *storage_kw[] = {"auto", "const", "enum", "extern", "inline", "register", "restrict", 
-                              "sizeof", "static", "struct", "typedef", "union", "volatile", NULL
+                              "sizeof", "static", "struct", "typedef", "union", "volatile" ,NULL
                             };
 
 //in build  data types
 static  char *type_kw[] = {"void", "char", "short", "int", "long", "float", "double", "signed",
                             "unsigned", "_Bool", "size_t", "FILE", "uint8_t", "uint16_t",
-                            "uint32_t", "uint64_t", "int8_t", "int16_t", "int32_t", "int64_t", NULL
+                            "uint32_t", "uint64_t", "int8_t", "int16_t", "int32_t", "int64_t",NULL
                           };
 
 // Predefined constants and literals
-static  char *const_kw[] = { "NULL", "EOF", "true", "false", NULL };
+static  char *const_kw[] = { "NULL", "EOF", "true", "false",NULL };
 
+
+
+//==========find what keyword in present==========
 static int is_list(char *data,size_t len,char **list)
 {
   
-  for(int i = 0 ; list[i] != NULL;i++)
+  for(int i = 0 ; list[i] != NULL;i++)                                                                  
   {
     
-    if(strlen(list[i]) == len && strncmp(list[i],data,len) ==0)
+    if(strlen(list[i]) == len && strncmp(list[i],data,len) == 0)                   /*check the length if len true only do comparition */
     {
-      return 1;
+      return 1;                                                                    /*both length and string n compare is true return 1 */
     }
   }
-  return 0;
+  return 0;                                                                        /*entire list is not present refutn 0 is false */
 }
 
 

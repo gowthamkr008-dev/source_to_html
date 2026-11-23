@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>main.c</title>
+<style>
+body{margin:0;padding:40px 0;background:#0f1534;color:#d4d4d4;font-family:'Segoe UI',Arial,sans-serif;}
+.page{max-width:1280px;margin:0 auto;padding:0 20px;}
+h1 { background-clip: text;font-size: 70px; color: #59f7c2; text-shadow: 0 5px 5px #4b81ff, 0 0 20px #7aa2ff, 0 0 40px #7aa2ff;text-align: center; }
+.sub{  margin:0 0 30px;color:#9da5b4;font-size:35px;text-align: center;font-weight: 500;}
+.card{background:#1f1f1f;border:1px solid #7489b6;border-radius:14px;padding:30px 25px;overflow-x:auto;}
+.code{font-family:Consolas,'Courier New',monospace;font-size:14px;}
+.l{white-space:pre;line-height:1.6;min-height:1.6em;}
+.n{display:inline-block;width:4ch;margin-right:2ch;text-align:right;color:#5c6678;user-select:none;}
+.n{display:inline-block;width:4ch;margin-right:2ch;text-align:right;color:#5c6678;user-select:none;}
+.preprocessor{color: #7c3aed;}
+.string{color: #e972f4; }
+.comment{color: #5647fc;font-style:italic;}
+.num{color : #f97407;}
+.bracket{color: #ebad66;}
+.storagekeyword{color:#d8a0f0;font-weight:bold;}
+.typekeyword{color : #6efffd;font-weight:bold;}
+.controlkw{color : #ff76f6;font-weight:bold;}
+.constantkw{color:#60a5fa;}
+.function{color:#f9ff90;}
+.operator{color:#94a3b8;}
+.footer { color: #b8b8b8; clear: both; margin-top: 40px;text-align:center;font-size: 18px; }
+.footer { clear: both; margin-top: 40px;text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Source to HTML</h1>
+<p class="sub">C - Project</p>
+<div class="card">
+<div class="code">
+<div class="l"><span class="n">1</span><span class="preprocessor">#include</span>    <span class="string">&quot;s2html.h&quot;</span></div>
+<div class="l"><span class="n">2</span></div>
+<div class="l"><span class="n">3</span><span class="typekeyword">int</span> <span class="function">main</span><span class="bracket">(</span><span class="typekeyword">int</span> argc,<span class="typekeyword">char</span> <span class="operator">*</span>argv<span class="bracket">[</span><span class="bracket">]</span><span class="bracket">)</span>                                                        <span class="comment">/*input given throw the command line argument */</span></div>
+<div class="l"><span class="n">4</span><span class="bracket">{</span></div>
+<div class="l"><span class="n">5</span>  <span class="typekeyword">char</span> <span class="operator">*</span>fname_src,<span class="operator">*</span>fname_dest;                                                        </div>
+<div class="l"><span class="n">6</span>  </div>
+<div class="l"><span class="n">7</span>  <span class="controlkw">if</span><span class="bracket">(</span><span class="function">cla_validation</span><span class="bracket">(</span>argc,argv,<span class="operator">&amp;</span>fname_src,<span class="operator">&amp;</span>fname_dest<span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span> FAILURE <span class="bracket">)</span>                    <span class="comment">/*verify the commend line argument user give proper or not */</span></div>
+<div class="l"><span class="n">8</span>  <span class="bracket">{</span></div>
+<div class="l"><span class="n">9</span>    <span class="controlkw">return</span> FAILURE;</div>
+<div class="l"><span class="n">10</span>  <span class="bracket">}</span></div>
+<div class="l"><span class="n">11</span>  </div>
+<div class="l"><span class="n">12</span>  <span class="typekeyword">FILE</span> <span class="operator">*</span>src;</div>
+<div class="l"><span class="n">13</span>  <span class="typekeyword">FILE</span> <span class="operator">*</span>dest;</div>
+<div class="l"><span class="n">14</span>  <span class="typekeyword">size_t</span> len;</div>
+<div class="l"><span class="n">15</span>  <span class="typekeyword">char</span> <span class="operator">*</span>srcdata;</div>
+<div class="l"><span class="n">16</span>  </div>
+<div class="l"><span class="n">17</span>  <span class="controlkw">if</span><span class="bracket">(</span><span class="function">read_file</span><span class="bracket">(</span><span class="operator">&amp;</span>src,<span class="operator">&amp;</span>len,fname_src,<span class="operator">&amp;</span>srcdata<span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span> FAILURE<span class="bracket">)</span>                             <span class="comment">/*  read the source file from given user input */</span></div>
+<div class="l"><span class="n">18</span>  <span class="bracket">{</span>                        </div>
+<div class="l"><span class="n">19</span>    <span class="controlkw">return</span> FAILURE;</div>
+<div class="l"><span class="n">20</span>  <span class="bracket">}</span></div>
+<div class="l"><span class="n">21</span>  </div>
+<div class="l"><span class="n">22</span>  dest <span class="operator">=</span> <span class="function">fopen</span><span class="bracket">(</span>fname_dest,<span class="string">&quot;w&quot;</span><span class="bracket">)</span>;                                                    <span class="comment">/* open the destination file in the write mode  */</span></div>
+<div class="l"><span class="n">23</span>  </div>
+<div class="l"><span class="n">24</span>  <span class="controlkw">if</span><span class="bracket">(</span>dest <span class="operator">=</span><span class="operator">=</span> <span class="constantke">NULL</span><span class="bracket">)</span>                                                                 <span class="comment">/*validate file is open or not */</span></div>
+<div class="l"><span class="n">25</span>  <span class="bracket">{</span></div>
+<div class="l"><span class="n">26</span>    <span class="function">perror</span><span class="bracket">(</span><span class="string">&quot;Error &quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">27</span>    <span class="controlkw">return</span> FAILURE;</div>
+<div class="l"><span class="n">28</span>  <span class="bracket">}</span></div>
+<div class="l"><span class="n">29</span>  </div>
+<div class="l"><span class="n">30</span></div>
+<div class="l"><span class="n">31</span>  <span class="function">write_header</span><span class="bracket">(</span>dest, <span class="string">&quot;Source to HTML&quot;</span>, <span class="string">&quot;C - Project&quot;</span>,fname_src<span class="bracket">)</span>;                     <span class="comment">/* write_header writes the start of the HTML page (CSS, title and the opening card) before the code lines.   */</span></div>
+<div class="l"><span class="n">32</span>  </div>
+<div class="l"><span class="n">33</span>  <span class="controlkw">if</span><span class="bracket">(</span><span class="function">source_to_html</span><span class="bracket">(</span>dest,srcdata,len<span class="bracket">)</span> <span class="operator">=</span><span class="operator">=</span> FAILURE<span class="bracket">)</span><span class="bracket">{</span>                                   <span class="comment">/*source_to_html converts C source code into coloured, line-numbered HTML.*/</span></div>
+<div class="l"><span class="n">34</span>    <span class="controlkw">return</span> FAILURE;</div>
+<div class="l"><span class="n">35</span>  <span class="bracket">}</span></div>
+<div class="l"><span class="n">36</span>  </div>
+<div class="l"><span class="n">37</span>  <span class="function">fprintf</span><span class="bracket">(</span>dest,<span class="string">&quot;&lt;/div&gt;\n&lt;/div&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n&quot;</span><span class="bracket">)</span>;                                         <span class="comment">/*after writing the htl and css code need to close the tags */</span></div>
+<div class="l"><span class="n">38</span> <span class="function">fprintf</span><span class="bracket">(</span>dest,<span class="string">&quot;&lt;/div&gt;\n&lt;footer class=\&quot;</span>footer\<span class="string">&quot;&gt;&amp;copy; 2026 Source to HTML | C - Project | Made by Gowtham K R&lt;/footer&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n&quot;</span><span class="bracket">)</span>;</div>
+<div class="l"><span class="n">39</span>  <span class="function">fclose</span><span class="bracket">(</span>dest<span class="bracket">)</span>;                                                                       <span class="comment">/*close the destination file */</span></div>
+<div class="l"><span class="n">40</span>  <span class="function">printf</span><span class="bracket">(</span><span class="string">&quot;Output file created : %s\n&quot;</span>,fname_dest<span class="bracket">)</span>;                                    <span class="comment">/*print the output file */</span></div>
+<div class="l"><span class="n">41</span>  </div>
+<div class="l"><span class="n">42</span>  <span class="function">free</span><span class="bracket">(</span>fname_dest<span class="bracket">)</span>;                                                                  <span class="comment">/*delete the before allocated memory for filename  */</span></div>
+<div class="l"><span class="n">43</span>  <span class="function">free</span><span class="bracket">(</span>srcdata<span class="bracket">)</span>;                                                                     <span class="comment">/*delete the data has inreaded files datas*/</span></div>
+<div class="l"><span class="n">44</span></div>
+<div class="l"><span class="n">45</span>  <span class="controlkw">return</span> <span class="num">0</span>;</div>
+<div class="l"><span class="n">46</span><span class="bracket">}</span></div>
+</div>
+</div>
+</body>
+</html>
+</div>
+<footer class="footer">&copy; 2026 Source to HTML | C - Project | Made by Gowtham K R</footer>
+</body>
+</html>
