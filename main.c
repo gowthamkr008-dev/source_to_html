@@ -34,11 +34,10 @@ int main(int argc,char *argv[])                                                 
     return FAILURE;
   }
   
-  fprintf(dest,"</div>\n</div>\n</body>\n</html>\n");                                         /*after writing the htl and css code need to close the tags */
- fprintf(dest,"</div>\n<footer class=\"footer\">&copy; 2026 Source to HTML | C - Project | Made by Gowtham K R</footer>\n</body>\n</html>\n");
+  fprintf(dest,"</div>\n</div>\n");                                         /*after writing the htl and css code need to close the tags */
+ fprintf(dest,"<div>\n<footer class=\"footer\">&copy; 2026 Source to HTML | C - Project | Made by Gowtham K R</footer>\n</div>\n</body>\n</html>\n");
   fclose(dest);                                                                       /*close the destination file */
-  printf("Output file created : %s\n",fname_dest);                                    /*print the output file */
-  
+  printf("HTML file Converted : %s\n",fname_dest);                                    /*print the output file */
   free(fname_dest);                                                                  /*delete the before allocated memory for filename  */
   free(srcdata);                                                                     /*delete the data has inreaded files datas*/
 

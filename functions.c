@@ -1,36 +1,36 @@
 #include "s2html.h"
 
-int cla_validation(int argc,char *argv[],char **src,char **dest)
+int cla_validation(int argc,char *argv[],char **src,char **dest)                 /*check the command line argumenr if user gives proper argument or not */
 {
-  if(argc < 2)
+  if(argc < 2)                                                                  /*argument count must more than 1 if not invalid argument  */
   {
     printf("Invalid argument \n");
-    printf("./a.out <inputfilename.c>  <optionalfile>  optional is output filename\n");
+    printf("./a.out <inputfilename.c>  <optionalfile>  optional is output filename\n");   /*usage message */
     return FAILURE; 
   }
   
-  *src =  strchr(argv[1],'.');
+  *src =  strchr(argv[1],'.');                                     /*check the argument extension present or not */
   
-  if(*src == NULL)
+  if(*src == NULL)                                                  /*if str chr return NULL invalid */
   {
-    fprintf(stderr,"invalid file %s\n",argv[0]);
+    fprintf(stderr,"invalid file %s\n",argv[1]);
     return FAILURE;
   }
   
-  if(strcmp(*src,".c")== 0)
+  if(strcmp(*src,".c")== 0)                                        /*compare the full extension if present or not */
   {
     *src = argv[1];
   }
   
   
-  if(argc == 3)
+  if(argc >= 3)                                                /*if argument count is equal to or greater than 3 user given the output file name */
   {
+  
+    *dest = strrchr(argv[2],'.');                              /*check the extension present or not */
     
-    *dest = strrchr(argv[2],'.');
-    
-    if( *dest != NULL && (strcmp(*dest,".html") == 0) )
+    if( *dest != NULL && (strcmp(*dest,".html") == 0) )         /*extension present asign to the destination fname */
     {
-      *dest = malloc( (strlen(argv[2])+1) * sizeof(char) );
+      *dest = malloc( (strlen(argv[2]) + 1) * sizeof(char) );      /*allocate a memory for copy the argv[2]*/
       
       if(*dest == NULL)
       {
@@ -38,37 +38,37 @@ int cla_validation(int argc,char *argv[],char **src,char **dest)
         return FAILURE;
       }
       strcpy(*dest,argv[2]);
-    }else{
+    }else{                                                             /*extension is not a  .html */
       
-      *dest = malloc( (strlen(argv[2])+1) * sizeof(char) );
+      *dest = malloc( (strlen(argv[2]) + 6) * sizeof(char) );          /*allocate a space */
       
       if(*dest == NULL)
       {
         printf("Allocation failure\n");
         return FAILURE;
       }
-      
-      strcpy(*dest,argv[2]);
+
+      strcpy(*dest,argv[2]);                                            /*add the file name with extension*/
       strcat(*dest,".html");
     }
-  }else{
-    *dest = malloc( (strlen("output.html")+1) * sizeof(char) );
+  }else{                                                                /*argument count is not a 3*/
+    *dest = malloc( (strlen("output.html") + 1) * sizeof(char) );   /* allocate a memory */
     
     if(*dest == NULL)
     {
       printf("Allocation failure\n");
       return FAILURE;
     }
-    strcpy(*dest ,"output.html");
+    strcpy(*dest ,"output.html");                                   /*copy the data to the destination*/
   }
   return SUCCESS;
 }
 
 
-int read_file(FILE ** src,size_t * len,char *fname,char **data)
+int read_file(FILE ** src,size_t * len,char *fname,char **data)     /*read the file from the file */
 {
   
-  *src = fopen(fname,"r");
+  *src = fopen(fname,"r");                                          /*open the file in read mode */
   
   if(*src == NULL)
   {
@@ -76,18 +76,18 @@ int read_file(FILE ** src,size_t * len,char *fname,char **data)
     return FAILURE;
   }
   
-  fseek(*src,0,SEEK_END);
-  *len = ftell(*src);
+  fseek(*src,0,SEEK_END);                                          /*move the pointer to end */
+  *len = ftell(*src);                                              /*using the ftell check the number of character */
   
-  if(*len < 1)
+  if(*len < 1)                                                     /*the character is less than 1 the file is empty*/
   {
     printf("File empty\n");
     fclose(*src);
     return FAILURE;
   }
   
-  rewind(*src);
-  *data = malloc( (*len + 1) * sizeof(char));
+  rewind(*src);                                                   /*move the file pointer to the first position */
+  *data = malloc( (*len + 1) * sizeof(char));                     /*asign a memory for a data */
   if(*data == NULL)
   {
     perror("Error ");
@@ -95,10 +95,10 @@ int read_file(FILE ** src,size_t * len,char *fname,char **data)
     return FAILURE;
   }
   
-  size_t val = fread(*data,1,*len,*src);
+  size_t val = fread(*data,1,*len,*src);                         /*read from the file in one time */
   
   (*data)[*len]= '\0';
-  fclose(*src);
+  fclose(*src);                                                 /*cloe the file */
   return SUCCESS;
 }
 
@@ -154,6 +154,8 @@ void end_line(FILE *dest)
     fputs("</div>\n", dest);
 }
 
+
+//=============HTML entities (like `&lt;` or `&copy;`) display reserved or special characters as text instead of code.=====
 static void entities(FILE *dest,char c)
 {
   
@@ -179,6 +181,9 @@ static void entities(FILE *dest,char c)
       break;
     }
   }
+  
+
+
   
 void insert_data(FILE *dest,  char *data, size_t start, size_t end, char *class)
 {

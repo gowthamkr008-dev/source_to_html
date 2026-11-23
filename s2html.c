@@ -33,20 +33,20 @@ static int is_list(char *data,size_t len,char **list)
       return 1;                                                                    /*both length and string n compare is true return 1 */
     }
   }
-  return 0;                                                                        /*entire list is not present refutn 0 is false */
+  return 0;                                                                        /*word is not present in entire list refutn 0 is false */
 }
 
 
-int source_to_html(FILE *dest, char *data, size_t len)
+int source_to_html(FILE *dest, char *data, size_t len)                              /*convert the c code to html */
 {
-  size_t i = 0,j;
+  size_t i = 0,j; 
   unsigned int line_start = 1;
   
   start_line(dest);
   
   unsigned char ch ;
   
-  while (i < len)
+  while (i < len)                                                                  
   {
     ch = (unsigned)data[i];
     
@@ -55,15 +55,15 @@ int source_to_html(FILE *dest, char *data, size_t len)
     {
       j = i + 1;
       
-      while(j < len && data[j] == ' ' || data[j] == '\t')j++;
+      while(j < len && data[j] == ' ' || data[j] == '\t')j++;                             /*after # any space it check and added */
       
       size_t nmstart = j;
       
-      while( j < len && isalpha(data[j]) )j++;
+      while( j < len && isalpha(data[j]) )j++;                                           /*add the include , define like that this added */
       
-      insert_data(dest,data,i,j,"preprocessor");
+      insert_data(dest,data,i,j,"preprocessor");                                         /*write a code for html as a preprocessor */
       
-      int isinc = (j - nmstart == 7 && strncmp(data + nmstart,"include",7) == 0);
+      int isinc = (j - nmstart == 7 && strncmp(data + nmstart,"include",7) == 0);       /*check this is include or not if include add the header file in below */
       
       line_start = 0;
       
@@ -71,17 +71,17 @@ int source_to_html(FILE *dest, char *data, size_t len)
       
       if(isinc)
       {
-        while(j < len && isspace(data[j]))j++;
+        while(j < len && isspace(data[j]))j++;                                          /*loop runc any space are there or not after include */
         
-        insert_data(dest,data,i,j,NULL);
-        if(data[i] == '<' || data[i] == '"')
+        insert_data(dest,data,i,j,NULL);                                                /*insert that spaces */
+        if(data[i] == '<' || data[i] == '"')                                          
         {
           char close = (data[i]=='<') ? '>' : '"';
           j = i + 1;
           
-          while( j < len && (data[j] != close && data[j] != '\n' )) j++;
-          if(j < len && data[j] == close) j++;
-          insert_data(dest,data,i,j,"string");
+          while( j < len && (data[j] != close && data[j] != '\n' )) j++;                  /*loop run until close tag or new line appear*/
+          if(j < len && data[j] == close) j++;                                            /*loop will exiting by the closing tag increment ont the j*/
+          insert_data(dest,data,i,j,"string");                                            /*insert a data as a string */
           i = j;
         }
       }
@@ -92,9 +92,9 @@ int source_to_html(FILE *dest, char *data, size_t len)
     if(ch == '/' && i +1 <len && data[i+1] == '/'){
       j = i + 2;
       
-      while(j < len && data[j] != '\n') j++;
+      while(j < len && data[j] != '\n') j++;                                                /*there is a single line comment the after // the entire content is commenting loop runs until the new line appear */
       
-      insert_data(dest,data,i ,j,"comment");
+      insert_data(dest,data,i ,j,"comment");                                                /*insert a data to html file */
       
       i = j;
       line_start =0;
@@ -103,13 +103,13 @@ int source_to_html(FILE *dest, char *data, size_t len)
     }
     
     //===========multiline comment======================
-    if(ch == '/' && data[i+1] == '*')
+    if(ch == '/' && data[i + 1] == '*')                                              /*check is a multiline comment */
     {
       j = i + 2;
       
-      while(j < len && !(data[j] == '*' && data[j+1] =='/' ))j++;
+      while(j < len && !(data[j] == '*' && data[j+1] =='/' ))j++;                    /*loop runs until the  * /  characters appears in continous */
       
-      insert_data(dest,data,i,j+=2,"comment");
+      insert_data(dest,data,i,j+=2,"comment");                                      /*inserta a data as comment */
       
       i = j;
       continue;
@@ -126,19 +126,19 @@ int source_to_html(FILE *dest, char *data, size_t len)
     //============space==========================
     if(isspace(ch))
     {
-      insert_data(dest,data,i,i+1,NULL);
+      insert_data(dest,data,i,i + 1,NULL);
       i++;
       continue;
     }
     
     //===============numbers============================
-    if(isdigit(ch) )
+    if(isdigit(ch) )                                                             /*check the numbers is digit or not */
     {
       j = i + 1;
       
-      while(j < len && (isalnum(data[j]) ) || data[j] =='.' || ( (data[j-1] == 'e' || data[j-1] == 'E' || data[j-1] == 'p' || data[j-1] == 'P'))) j++;
+      while(j < len && (isalnum(data[j]) ) || data[j] =='.' || ( (data[j-1] == 'e' || data[j-1] == 'E' || data[j-1] == 'p' || data[j - 1] == 'P'))) j++;    /*loop runs the count number or sintific numbers  */
       
-      insert_data(dest,data,i,j,"num");
+      insert_data(dest,data,i,j,"num");                                             /*insera a data as  a number */
       
       i = j;
       line_start = 0;
@@ -146,55 +146,55 @@ int source_to_html(FILE *dest, char *data, size_t len)
     }
     
     //============brackets===============
-    if(strchr("[]{}()",ch) != NULL)
+    if(strchr("[]{}()",ch) != NULL)                                               /*check the data as a brackets */
     { 
-      insert_data(dest,data,i,i+1,"bracket");
+      insert_data(dest,data,i,i + 1,"bracket");                                   /*insert tha data */
       i++;
       line_start = 0;
       continue;
     }
 
       //=========string literal character literal ============
-      if(ch == '"' || ch == '\''){
+      if(ch == '"' || ch == '\''){                                                /*check the string or character literal */
         j = i + 1;
         
-        while(j < len && (data[j] != ch )) j++;
+        while(j < len && (data[j] != ch )) j++;                                   /*loop runs until the any one char present ' or " */                                 
         
-        if(  data[j] == '\'')j++;
+        if( data[j] == '\'')j++;
         
-        insert_data(dest,data,i,j+1,"string");
+        insert_data(dest,data,i,j + 1,"string");                                  /*insert a data as a string */
         i = j + 1;
         continue;
       }
       
-      //===========functions / keywords / identifier ============
-      if(isalpha(ch) || ch == '_')
+      //===========functions / keywords / variable  ============
+      if(isalpha(ch) || ch == '_')                                                 /*check is is alpha or  _ */
       {
         j = i;
         size_t len_s = 0;
         
-        while(j < len && (isalnum(data[j]))|| data[j] == '_' )
+        while(j < len && (isalnum(data[j])) || data[j] == '_' )                   /* loop run until is not a  or special char like that  */
         {
-          len_s++;
+          len_s++;                                                                /*count the length of the string */
           j++;
         }
         
         char * cls = NULL;
         
-        if(is_list(data + i,len_s,control_kw) ){
+        if(is_list(data + i,len_s,control_kw) ){                                  /*check is a control keyword */
           cls = "controlkw";
-        }else if(is_list(data + i,len_s,storage_kw)){
+        }else if(is_list(data + i,len_s,storage_kw)){                              /*check is a storage keyword */
           cls ="storagekeyword";
-        }else if(is_list(data + i,len_s,type_kw)){
+        }else if(is_list(data + i,len_s,type_kw)){                                 /*check is there is type keyword */
           cls = "typekeyword";
-        }else if(is_list(data + i,len_s,const_kw)){
-          cls = "constantke";
-        }else{
-          size_t k = j;
+        }else if(is_list(data + i,len_s,const_kw)){                                /*check is there constant keyword */
+          cls = "constantkw";
+        }else{                                                                     /*not a any keyword consider as is function or variable */
+          size_t k = j;                                                             /*here k no need to add the space and bracket in that variable class  */
           
-          while(k < len && ((data[k] == ' ' || data[k] == '\t')))k++;
+          while(k < len && ((data[k] == ' ' || data[k] == '\t')))k++;              /*after words loop runs until the space in between the next word or brackets */
           
-          if(k < len && data[k]== '('){
+          if(k < len && data[k]== '('){                                            /*if that is bracket it variable is function*/
             cls = "function";
           }
         }
@@ -205,9 +205,9 @@ int source_to_html(FILE *dest, char *data, size_t len)
       }
       
       //================operators=================
-      if (strchr("+-*=<>%!|&^~?:", ch) != NULL)
+      if (strchr("+-*=<>%!|&^~?:", ch) != NULL)                                       /*check the operator is char or not */                  
       {
-        insert_data(dest, data, i, i + 1, "operator");
+        insert_data(dest, data, i, i + 1, "operator");                                /*insert a data as a operator */
         i++;
         line_start = 0;
         continue;
@@ -218,6 +218,6 @@ int source_to_html(FILE *dest, char *data, size_t len)
       line_start = 0;
       i++;
     }
-    end_line(dest);
-    return SUCCESS;
+    end_line(dest);                                                                      /*everything is done close tha tag */
+    return SUCCESS;                                                                       /*everything done succesfully return success */
   }
